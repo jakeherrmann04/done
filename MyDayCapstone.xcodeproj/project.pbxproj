@@ -15,7 +15,8 @@
 		231D031B1AC9DC5700E1E066 /* List.m in Sources */ = {isa = PBXBuildFile; fileRef = 231D031A1AC9DC5700E1E066 /* List.m */; };
 		231D031E1AC9DC5700E1E066 /* Segment.m in Sources */ = {isa = PBXBuildFile; fileRef = 231D031D1AC9DC5700E1E066 /* Segment.m */; };
 		231D03211AC9DC5800E1E066 /* Entry.m in Sources */ = {isa = PBXBuildFile; fileRef = 231D03201AC9DC5800E1E066 /* Entry.m */; };
-		231D03241AC9DD1C00E1E066 /* listController.m in Sources */ = {isa = PBXBuildFile; fileRef = 231D03231AC9DD1C00E1E066 /* listController.m */; };
+		231D03241AC9DD1C00E1E066 /* ListController.m in Sources */ = {isa = PBXBuildFile; fileRef = 231D03231AC9DD1C00E1E066 /* ListController.m */; };
+		232DDB6B1AD47F9D00DF1E8B /* DetailTaskTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 232DDB6A1AD47F9D00DF1E8B /* DetailTaskTableViewCell.m */; };
 		2346D8AA1AC112F200AC6A22 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2346D8A91AC112F200AC6A22 /* main.m */; };
 		2346D8AD1AC112F200AC6A22 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2346D8AC1AC112F200AC6A22 /* AppDelegate.m */; };
 		2346D8B31AC112F200AC6A22 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2346D8B11AC112F200AC6A22 /* Main.storyboard */; };
@@ -25,7 +26,6 @@
 		2346D8CF1AC1B73200AC6A22 /* CurrentDayViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2346D8CE1AC1B73200AC6A22 /* CurrentDayViewController.m */; };
 		2346D8D41AC2103E00AC6A22 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2346D8D31AC2103E00AC6A22 /* QuartzCore.framework */; };
 		237505BD1AC34D5A009F3F1C /* SwipeCustomCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 237505BC1AC34D5A009F3F1C /* SwipeCustomCell.m */; };
-		23A70EF01ACB219E00EBC96B /* AddFIneViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 23A70EEF1ACB219E00EBC96B /* AddFIneViewController.m */; };
 		23A70EF31ACB560200EBC96B /* HVTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 23A70EF21ACB560200EBC96B /* HVTableView.m */; };
 		23A70EF61ACB8B9600EBC96B /* ExpandingTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 23A70EF51ACB8B9600EBC96B /* ExpandingTableViewController.m */; };
 		AD77AFCFC435F4A6F1FD3591 /* libPods-MyDayCapstone.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9E96A209BD003A7E3A5D5B43 /* libPods-MyDayCapstone.a */; };
@@ -56,8 +56,10 @@
 		231D031D1AC9DC5700E1E066 /* Segment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Segment.m; sourceTree = "<group>"; };
 		231D031F1AC9DC5700E1E066 /* Entry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Entry.h; sourceTree = "<group>"; };
 		231D03201AC9DC5800E1E066 /* Entry.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Entry.m; sourceTree = "<group>"; };
-		231D03221AC9DD1C00E1E066 /* listController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = listController.h; sourceTree = "<group>"; };
-		231D03231AC9DD1C00E1E066 /* listController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = listController.m; sourceTree = "<group>"; };
+		231D03221AC9DD1C00E1E066 /* ListController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ListController.h; sourceTree = "<group>"; };
+		231D03231AC9DD1C00E1E066 /* ListController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ListController.m; sourceTree = "<group>"; };
+		232DDB691AD47F9D00DF1E8B /* DetailTaskTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DetailTaskTableViewCell.h; sourceTree = "<group>"; };
+		232DDB6A1AD47F9D00DF1E8B /* DetailTaskTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DetailTaskTableViewCell.m; sourceTree = "<group>"; };
 		2346D8A41AC112F200AC6A22 /* MyDayCapstone.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyDayCapstone.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2346D8A81AC112F200AC6A22 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2346D8A91AC112F200AC6A22 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -74,8 +76,6 @@
 		2346D8D31AC2103E00AC6A22 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		237505BB1AC34D5A009F3F1C /* SwipeCustomCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SwipeCustomCell.h; sourceTree = "<group>"; };
 		237505BC1AC34D5A009F3F1C /* SwipeCustomCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SwipeCustomCell.m; sourceTree = "<group>"; };
-		23A70EEE1ACB219E00EBC96B /* AddFIneViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AddFIneViewController.h; sourceTree = "<group>"; };
-		23A70EEF1ACB219E00EBC96B /* AddFIneViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AddFIneViewController.m; sourceTree = "<group>"; };
 		23A70EF11ACB560200EBC96B /* HVTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HVTableView.h; sourceTree = "<group>"; };
 		23A70EF21ACB560200EBC96B /* HVTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HVTableView.m; sourceTree = "<group>"; };
 		23A70EF41ACB8B9600EBC96B /* ExpandingTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExpandingTableViewController.h; sourceTree = "<group>"; };
@@ -120,8 +120,8 @@
 			children = (
 				231D03191AC9DC5700E1E066 /* List.h */,
 				231D031A1AC9DC5700E1E066 /* List.m */,
-				231D03221AC9DD1C00E1E066 /* listController.h */,
-				231D03231AC9DD1C00E1E066 /* listController.m */,
+				231D03221AC9DD1C00E1E066 /* ListController.h */,
+				231D03231AC9DD1C00E1E066 /* ListController.m */,
 				231D031F1AC9DC5700E1E066 /* Entry.h */,
 				231D03201AC9DC5800E1E066 /* Entry.m */,
 				231D031C1AC9DC5700E1E066 /* Segment.h */,
@@ -140,8 +140,6 @@
 				231D02E21AC5F20E00E1E066 /* ListViewController.m */,
 				231D02E41AC5F27300E1E066 /* ListTableViewCell.h */,
 				231D02E51AC5F27300E1E066 /* ListTableViewCell.m */,
-				23A70EEE1ACB219E00EBC96B /* AddFIneViewController.h */,
-				23A70EEF1ACB219E00EBC96B /* AddFIneViewController.m */,
 			);
 			name = ListView;
 			sourceTree = "<group>";
@@ -153,6 +151,8 @@
 				2346D8CE1AC1B73200AC6A22 /* CurrentDayViewController.m */,
 				237505BB1AC34D5A009F3F1C /* SwipeCustomCell.h */,
 				237505BC1AC34D5A009F3F1C /* SwipeCustomCell.m */,
+				232DDB691AD47F9D00DF1E8B /* DetailTaskTableViewCell.h */,
+				232DDB6A1AD47F9D00DF1E8B /* DetailTaskTableViewCell.m */,
 			);
 			name = Segment;
 			sourceTree = "<group>";
@@ -385,8 +385,8 @@
 				231D02E31AC5F20E00E1E066 /* ListViewController.m in Sources */,
 				231D02D51AC5E69100E1E066 /* Model.xcdatamodeld in Sources */,
 				231D031B1AC9DC5700E1E066 /* List.m in Sources */,
-				231D03241AC9DD1C00E1E066 /* listController.m in Sources */,
-				23A70EF01ACB219E00EBC96B /* AddFIneViewController.m in Sources */,
+				231D03241AC9DD1C00E1E066 /* ListController.m in Sources */,
+				232DDB6B1AD47F9D00DF1E8B /* DetailTaskTableViewCell.m in Sources */,
 				231D031E1AC9DC5700E1E066 /* Segment.m in Sources */,
 				2346D8CF1AC1B73200AC6A22 /* CurrentDayViewController.m in Sources */,
 				2346D8AD1AC112F200AC6A22 /* AppDelegate.m in Sources */,

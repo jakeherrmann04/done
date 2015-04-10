@@ -11,9 +11,7 @@
 #import "Segment.h"
 #import "Entry.h"
 
-
 @interface CurrentDayViewController : UIViewController <UITableViewDataSource>
-
 
 @property (nonatomic, strong)NSMutableIndexSet *expandedSections;
 @property (nonatomic, strong)List* list;

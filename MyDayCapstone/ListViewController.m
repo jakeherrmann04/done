@@ -10,7 +10,7 @@
 #import "ListTableViewCell.h"
 #import "CurrentDayViewController.h"
 #import "List.h"
-#import "listController.h"
+#import "ListController.h"
 
 
 @interface ListViewController () <UITableViewDelegate>
@@ -40,7 +40,7 @@
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
     
     ListTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"listCell" forIndexPath:indexPath];
-    List *list = [listController sharedInstance].days[indexPath.row];
+    List *list = [ListController sharedInstance].days[indexPath.row];
     cell.textLabel.text = list.title;
     cell.textLabel.textColor = [UIColor whiteColor];
     cell.backgroundColor = [UIColor colorWithRed:0.000 green:0.424 blue:0.475 alpha:1];
@@ -51,16 +51,35 @@
 }
 
 -(void)addDay{
-    [self performSegueWithIdentifier:@"addDay" sender:nil];
+    
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Add Title" message:@"Please enter title below." preferredStyle:UIAlertControllerStyleAlert];
+    
+    [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+        textField.placeholder = @"Title";
+    }];
+
+    
+    [alertController addAction:[UIAlertAction actionWithTitle:@"Add Title" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        UITextField *textField = [[alertController textFields]firstObject];
+        [[ListController sharedInstance]addDayWithTitle:textField.text];
+        [self.tableView reloadData];
+        [self performSegueWithIdentifier:@"daySegue" sender:nil];
+
+
+    }]];
+    
+    [alertController addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    [self presentViewController:alertController animated:YES completion:nil];
+
     
 }
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    return [listController sharedInstance].days.count;
+    return [ListController sharedInstance].days.count;
 }
 
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    [[listController sharedInstance]updateWithList:[listController sharedInstance].days[indexPath.row]];
+    [[ListController sharedInstance]updateWithList:[ListController sharedInstance].days[indexPath.row]];
     [self performSegueWithIdentifier:@"daySegue" sender:nil];
 }
 
@@ -76,7 +95,7 @@
     if (editingStyle == UITableViewCellEditingStyleDelete) {
         //remove the deleted object from your data source.
         //If your data source is an NSMutableArray, do this
-        [[listController sharedInstance]removeList:[listController sharedInstance].days[indexPath.row]];
+        [[ListController sharedInstance]removeList:[ListController sharedInstance].days[indexPath.row]];
         [tableView reloadData]; // tell table to refresh now
     }
 }

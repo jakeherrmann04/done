@@ -11,11 +11,11 @@
 #import "Entry.h"
 #import "Segment.h"
 
-@interface listController : NSObject
+@interface ListController : NSObject
 
-@property (nonatomic, strong)List *list;
+@property (nonatomic, strong) List *list;
 
-+ (listController*)sharedInstance;
++ (ListController*)sharedInstance;
 
 - (NSArray *)days;
 - (void)addDayWithTitle:(NSString *)title;
@@ -23,7 +23,13 @@
 
 - (void)updateWithList:(List *)list;
 - (NSArray *)sections;
-- (void)addSegmentToList:(List *)list;
+- (void)addSegmentToList:(List *)list withTitle:(NSString *)string;
 - (void)addEntryToSegment:(Segment *)segment;
+- (void)removeSegment:(Segment *)segment;
+
+- (void)addTitleToEntry:(Entry *)entry withTitle:(NSString *)title;
+- (NSArray *)entries;
+
+
 
 @end

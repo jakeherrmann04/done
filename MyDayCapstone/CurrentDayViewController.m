@@ -8,11 +8,18 @@
 #import <SWTableViewCell.h>
 #import "CurrentDayViewController.h"
 #import "SwipeCustomCell.h"
-#import "listController.h"
+#import "ListController.h"
+#import "DetailTaskTableViewCell.h"
 
-@interface CurrentDayViewController () <SWTableViewCellDelegate>
+
+static NSString *cellIdentifier = @"customCell";
+static NSString *detailCellIdentifier = @"detailCell";
+
+@interface CurrentDayViewController () <SWTableViewCellDelegate, UITextFieldDelegate, TableViewCellTextFieldDelegate>
 
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
+
+
 
 @end
 
@@ -26,16 +33,22 @@
 {
     [super viewDidLoad];
     
-    self.title = [listController sharedInstance].list.title;
+    self.title = [ListController sharedInstance].list.title;
 
     [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"listCell"];
     UIBarButtonItem *addDay = [[UIBarButtonItem alloc]initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addSection)];
     [self.navigationItem setRightBarButtonItem:addDay];
 
-    
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     self.tableView.backgroundColor = [UIColor whiteColor];
     self.tableView.separatorInset = UIEdgeInsetsMake(0, 0, 0, 0);
+    
+    UIRefreshControl *refreshControl = [UIRefreshControl new];
+    refreshControl.attributedTitle = [[NSAttributedString alloc]initWithString:@"Loading"];
+    [refreshControl addTarget:self action:@selector(refresh:) forControlEvents:UIControlEventValueChanged];
+    [self.tableView addSubview:refreshControl];
+    
+    
 
     if (!self.expandedSections)
     {
@@ -50,21 +63,51 @@
     
 }
 
+-(void)textFieldFinishedEditing:(id)sender{
+    
+    NSIndexPath *indexPath = [self.tableView indexPathForCell:sender];
+    Entry *entry = [ListController sharedInstance].entries[indexPath.row];
+    
+    [[ListController sharedInstance]addTitleToEntry:entry withTitle:[sender taskTextField].text];
+}
+
+
+- (void)refresh:(UIRefreshControl *)refreshControl
+{
+    [self.tableView reloadData];
+    [refreshControl endRefreshing];
+}
+
 -(void)addSection{
-    [[listController sharedInstance]addSegmentToList:[listController sharedInstance].list];
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Add Section title" message:@"Please enter title below." preferredStyle:UIAlertControllerStyleAlert];
+    
+    [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+        textField.placeholder = @"Section";
+    }];
+    
+    
+    [alertController addAction:[UIAlertAction actionWithTitle:@"Add Section" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        UITextField *textField = [[alertController textFields]firstObject];
+        [[ListController sharedInstance]addSegmentToList:[ListController sharedInstance].list withTitle:textField.text];
+        [self.tableView reloadData];
+        
+        
+    }]];
+    
+    [alertController addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    [self presentViewController:alertController animated:YES completion:nil];
+
     [self.tableView reloadData];
 }
 
 - (BOOL)tableView:(UITableView *)tableView canCollapseSection:(NSInteger)section
 {
-//    if (section>0) return YES;
-    
     return YES;
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-    return [listController sharedInstance].list.segments.count;
+    return [ListController sharedInstance].list.segments.count;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
@@ -73,26 +116,24 @@
     {
         if ([self.expandedSections containsIndex:section])
         {
-            Segment *seg = [listController sharedInstance].list.segments[section];
+            Segment *seg = [ListController sharedInstance].list.segments[section];
             return seg.entries.count + 1;
         }
         
         return 1; // only top row showing
     }
     
-    // Return the number of rows in the section.
     return 0;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    static NSString *cellIdentifier = @"customCell";
+   
+    UITableViewCell * cell;
+    DetailTaskTableViewCell *detailCell;
+    SwipeCustomCell *swipeCell;
     
-    SwipeCustomCell *cell = (SwipeCustomCell *)[tableView dequeueReusableCellWithIdentifier:cellIdentifier forIndexPath:indexPath];
-    
-    cell.leftUtilityButtons = [self leftButtons];
-    cell.rightUtilityButtons = [self rightButtons];
-    cell.delegate = self;
+    swipeCell.delegate = self;
     
     if ([self tableView:tableView canCollapseSection:indexPath.section])
     {
@@ -100,34 +141,51 @@
         {
             if ([self.expandedSections containsIndex:indexPath.section])
             {
-                cell.textLabel.text = @"School";
-                cell.textLabel.textColor = [UIColor colorWithRed:0.976 green:0.922 blue:0.855 alpha:1];
-                cell.backgroundColor = [UIColor colorWithRed:0.745 green:0.388 blue:0.329 alpha:1];
-                         }
+                swipeCell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier forIndexPath:indexPath];
+                
+                swipeCell.leftUtilityButtons = [self leftButtons];
+                swipeCell.rightUtilityButtons = [self rightButtons];
+                swipeCell.delegate = self;
+
+                Segment *segment = [ListController sharedInstance].list.segments[indexPath.section];
+                NSString* title = segment.title;
+                swipeCell.textLabel.text = title;
+                swipeCell.textLabel.textColor = [UIColor colorWithRed:0.976 green:0.922 blue:0.855 alpha:1];
+                swipeCell.backgroundColor = [UIColor colorWithRed:0.745 green:0.388 blue:0.329 alpha:1];
+                
+                cell = swipeCell;
+                
+            }
             else
             {
-                cell.textLabel.text = @"School";
-                cell.textLabel.textColor = [UIColor colorWithRed:0.976 green:0.922 blue:0.855 alpha:1];
+                swipeCell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier forIndexPath:indexPath];
+                swipeCell.leftUtilityButtons = [self leftButtons];
+                swipeCell.rightUtilityButtons = [self rightButtons];
+                swipeCell.delegate = self;
+
+                Segment *segment = [ListController sharedInstance].list.segments[indexPath.section];
+                NSString* title = segment.title;
+                swipeCell.textLabel.text = title;
+                swipeCell.textLabel.textColor = [UIColor colorWithRed:0.976 green:0.922 blue:0.855 alpha:1];
                 
-                cell.backgroundColor = [UIColor colorWithRed:0.745 green:0.388 blue:0.329 alpha:1];
+                swipeCell.backgroundColor = [UIColor colorWithRed:0.745 green:0.388 blue:0.329 alpha:1];
+                cell = swipeCell;
             }
         }
         else
         {
-            cell.textLabel.text = @"quiz 14";
-            cell.accessoryView = nil;
-            cell.backgroundColor = [UIColor colorWithRed:0.800 green:0.588 blue:0.306 alpha:1];
+            
+            detailCell = [tableView dequeueReusableCellWithIdentifier:detailCellIdentifier forIndexPath:indexPath];
+            detailCell.delegate = self;
+            detailCell.accessoryView = nil;
+            detailCell.backgroundColor = [UIColor colorWithRed:0.800 green:0.588 blue:0.306 alpha:1];
+            detailCell.taskTextField.text = [[ListController sharedInstance].entries[indexPath.row -1]title];
+           
+            cell = detailCell;
 
         }
     }
-    else
-    {
-        [cell setHidden:NO];
-        cell.accessoryView = nil;
-      //  cell.textLabel.text = @"MyDay";
-        
-    }
-    
+ 
     return cell;
 }
 
@@ -135,7 +193,7 @@
 {
     NSMutableArray *rightUtilityButtons = [NSMutableArray new];
     [rightUtilityButtons sw_addUtilityButtonWithColor:
-     [UIColor colorWithRed:0.78f green:0.78f blue:0.8f alpha:1.0]
+     [UIColor colorWithRed:0.980 green:0.537 blue:0.502 alpha:1]
                                                 title:@"More"];
     [rightUtilityButtons sw_addUtilityButtonWithColor:
      [UIColor colorWithRed:1.0f green:0.231f blue:0.188 alpha:1.0f]
@@ -149,20 +207,16 @@
     NSMutableArray *leftUtilityButtons = [NSMutableArray new];
     
     [leftUtilityButtons sw_addUtilityButtonWithColor:
-     [UIColor colorWithRed:0.07 green:0.75f blue:0.16f alpha:1.0]
+    [UIColor colorWithRed:1.000 green:0.208 blue:0.263 alpha:1]
                                                 icon:[UIImage imageNamed:@"add.png"]];
     [leftUtilityButtons sw_addUtilityButtonWithColor:
-     [UIColor colorWithRed:1.0f green:1.0f blue:0.35f alpha:1.0]
+     [UIColor colorWithRed:0.725 green:0.129 blue:0.310 alpha:1]
                                                 icon:[UIImage imageNamed:@"check.png"]];
-//    [leftUtilityButtons sw_addUtilityButtonWithColor:
-//     [UIColor colorWithRed:1.0f green:0.231f blue:0.188f alpha:1.0]
-//                                                icon:[UIImage imageNamed:@"time.png"]];
-//    [leftUtilityButtons sw_addUtilityButtonWithColor:
-//     [UIColor colorWithRed:0.55f green:0.27f blue:0.07f alpha:1.0]
-//                                                icon:[UIImage imageNamed:@"edit.png"]];
     
     return leftUtilityButtons;
 }
+
+
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if ([self tableView:tableView canCollapseSection:indexPath.section])
@@ -219,11 +273,12 @@
     }
 }
 
+
+
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
-  //  NSInteger section = indexPath.section;
     if([self.expandedSections containsIndex:indexPath.section])
     {
-        return 50;
+        return 43;
     }
     else
     {
@@ -231,26 +286,34 @@
     }
 }
 
-- (void)swipeableTableViewCell:(SWTableViewCell *)cell didTriggerLeftUtilityButtonWithIndex:(NSInteger)index {
-    
+-(void)swipeableTableViewCell:(SWTableViewCell *)cell didTriggerRightUtilityButtonWithIndex:(NSInteger)index{
     NSIndexPath *path = [self.tableView indexPathForCell:cell];
-    Segment *seg = [listController sharedInstance].list.segments[path.section];
 
     switch (index) {
         case 0:
-            [[listController sharedInstance] addEntryToSegment:seg];
+            NSLog(@"More");
+            break;
+        default:
+            case 1:
+            NSLog(@"Delete");
+            [[ListController sharedInstance]removeSegment:[ListController sharedInstance].list.segments[path.section]];
+            [self.tableView reloadData];
+            break;
+    }
+}
+
+- (void)swipeableTableViewCell:(SWTableViewCell *)cell didTriggerLeftUtilityButtonWithIndex:(NSInteger)index {
+    
+    NSIndexPath *path = [self.tableView indexPathForCell:cell];
+    Segment *seg = [ListController sharedInstance].list.segments[path.section];
+
+    switch (index) {
+        case 0:
+            [[ListController sharedInstance] addEntryToSegment:seg];
             NSLog(@"check button was pressed");
             break;
         case 1:
             NSLog(@"clock button was pressed");
-            break;
-        case 2:
-            NSLog(@"cross button was pressed");
-            
-            break;
-        case 3:
-            NSLog(@"list button was pressed");
-        default:
             break;
     }
 }
@@ -260,8 +323,15 @@
 }
 
 - (BOOL)swipeableTableViewCell:(SWTableViewCell *)cell canSwipeToState:(SWCellState)state{
-    return YES;
-}
+    NSIndexPath *path = [self.tableView indexPathForCell:cell];
 
+    if([self.expandedSections containsIndex:path.section]){
+        return NO;
+    }
+    else{
+        return YES;
+    }
+
+}
 
 @end

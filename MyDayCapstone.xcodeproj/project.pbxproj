@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2318E5751AD8354B0064AC34 /* SegmentController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2318E5741AD8354B0064AC34 /* SegmentController.m */; };
 		231D029D1AC5AF4500E1E066 /* Stack.m in Sources */ = {isa = PBXBuildFile; fileRef = 231D029C1AC5AF4500E1E066 /* Stack.m */; };
 		231D02D21AC5E58900E1E066 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 231D02D11AC5E58900E1E066 /* CoreData.framework */; };
 		231D02D51AC5E69100E1E066 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 231D02D31AC5E69100E1E066 /* Model.xcdatamodeld */; };
@@ -42,6 +43,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2318E5731AD8354B0064AC34 /* SegmentController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SegmentController.h; sourceTree = "<group>"; };
+		2318E5741AD8354B0064AC34 /* SegmentController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SegmentController.m; sourceTree = "<group>"; };
 		231D029B1AC5AF4500E1E066 /* Stack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Stack.h; sourceTree = "<group>"; };
 		231D029C1AC5AF4500E1E066 /* Stack.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Stack.m; sourceTree = "<group>"; };
 		231D02D11AC5E58900E1E066 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
@@ -122,6 +125,8 @@
 				231D031A1AC9DC5700E1E066 /* List.m */,
 				231D03221AC9DD1C00E1E066 /* ListController.h */,
 				231D03231AC9DD1C00E1E066 /* ListController.m */,
+				2318E5731AD8354B0064AC34 /* SegmentController.h */,
+				2318E5741AD8354B0064AC34 /* SegmentController.m */,
 				231D031F1AC9DC5700E1E066 /* Entry.h */,
 				231D03201AC9DC5800E1E066 /* Entry.m */,
 				231D031C1AC9DC5700E1E066 /* Segment.h */,
@@ -382,6 +387,7 @@
 				231D02E61AC5F27300E1E066 /* ListTableViewCell.m in Sources */,
 				231D029D1AC5AF4500E1E066 /* Stack.m in Sources */,
 				237505BD1AC34D5A009F3F1C /* SwipeCustomCell.m in Sources */,
+				2318E5751AD8354B0064AC34 /* SegmentController.m in Sources */,
 				231D02E31AC5F20E00E1E066 /* ListViewController.m in Sources */,
 				231D02D51AC5E69100E1E066 /* Model.xcdatamodeld in Sources */,
 				231D031B1AC9DC5700E1E066 /* List.m in Sources */,

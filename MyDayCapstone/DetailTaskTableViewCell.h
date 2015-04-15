@@ -13,6 +13,7 @@
 @protocol TableViewCellTextFieldDelegate
 
 - (void)textFieldFinishedEditing:(id)sender;
+- (void)checkBoxWasChecked:(id)sender;
 
 @end
 
@@ -21,5 +22,12 @@
 @property(nonatomic, weak) id <TableViewCellTextFieldDelegate> delegate;
 @property (strong, nonatomic) IBOutlet UIButton *checkButton;
 @property (strong, nonatomic) IBOutlet UITextField *taskTextField;
+@property (nonatomic, assign) int section;
+@property (nonatomic, assign) int row;
+@property (nonatomic, assign) NSInteger *checkNumber;
+@property (nonatomic, assign) UIImage *buttonImage;
+
+
+
 
 @end

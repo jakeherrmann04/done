@@ -13,7 +13,7 @@
 
 @interface CurrentDayViewController : UIViewController <UITableViewDataSource>
 
-@property (nonatomic, strong)NSMutableIndexSet *expandedSections;
-@property (nonatomic, strong)List* list;
+@property (nonatomic, strong) NSMutableIndexSet *expandedSections;
+@property (nonatomic, strong) List *list;
 
 @end

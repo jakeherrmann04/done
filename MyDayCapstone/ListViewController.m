@@ -12,6 +12,7 @@
 #import "List.h"
 #import "ListController.h"
 
+static NSString *listCell = @"listCell";
 
 @interface ListViewController () <UITableViewDelegate>
 
@@ -24,10 +25,13 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"listCell"];
-    UIBarButtonItem *addDay = [[UIBarButtonItem alloc]initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addDay)];
+    //Register the TableView with Cell Identifier
+    [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:listCell];
+    
+    //Create a UIBarButtonITem and add to Nav Bar
+    UIBarButtonItem *addListButton = [[UIBarButtonItem alloc]initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addList)];
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
-    [self.navigationItem setRightBarButtonItem:addDay];
+    [self.navigationItem setRightBarButtonItem:addListButton];
   
 }
 
@@ -36,55 +40,63 @@
     // Dispose of any resources that can be recreated.
 }
 
+- (BOOL)textFieldShouldReturn:(UITextField *)textField
+{
+    [textField resignFirstResponder];
+    return YES;
+}
+
+#pragma mark - Bar Button Method
+//When the plus button is tapped create have an alert appear with message
+-(void)addList {
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Add Title" message:@"Please enter title below." preferredStyle:UIAlertControllerStyleAlert];
+    
+    [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+        textField.placeholder = @"Title";
+    }];
+    
+    
+    [alertController addAction:[UIAlertAction actionWithTitle:@"Add Title" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        UITextField *textField = [[alertController textFields]firstObject];
+        [[ListController sharedInstance] addListWithTitle:textField.text];
+        [self.tableView reloadData];
+        //[self performSegueWithIdentifier:@"listTappedSegue" sender:nil];
+        
+        
+    }]];
+    
+    [alertController addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    [self presentViewController:alertController animated:YES completion:nil];
+}
+
+#pragma mark - TableView DataSource
+
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return [ListController sharedInstance].lists.count;
+}
 
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
     
-    ListTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"listCell" forIndexPath:indexPath];
-    List *list = [ListController sharedInstance].days[indexPath.row];
+    ListTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:listCell forIndexPath:indexPath];
+    List *list = [ListController sharedInstance].lists[indexPath.row];
     cell.textLabel.text = list.title;
     cell.textLabel.textColor = [UIColor whiteColor];
     cell.backgroundColor = [UIColor colorWithRed:0.000 green:0.424 blue:0.475 alpha:1];
     [cell.textLabel setFont: [UIFont fontWithName:@"Arial" size:20]];
 
     return cell;
-    
 }
 
--(void)addDay{
-    
-    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Add Title" message:@"Please enter title below." preferredStyle:UIAlertControllerStyleAlert];
-    
-    [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
-        textField.placeholder = @"Title";
-    }];
-
-    
-    [alertController addAction:[UIAlertAction actionWithTitle:@"Add Title" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-        UITextField *textField = [[alertController textFields]firstObject];
-        [[ListController sharedInstance]addDayWithTitle:textField.text];
-        [self.tableView reloadData];
-        [self performSegueWithIdentifier:@"daySegue" sender:nil];
-
-
-    }]];
-    
-    [alertController addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
-    [self presentViewController:alertController animated:YES completion:nil];
-
-    
-}
--(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    return [ListController sharedInstance].days.count;
-}
+#pragma mark - TableView Delegate
 
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    [[ListController sharedInstance]updateWithList:[ListController sharedInstance].days[indexPath.row]];
-    [self performSegueWithIdentifier:@"daySegue" sender:nil];
+    [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+    [self performSegueWithIdentifier:@"listTappedSegue" sender:[tableView cellForRowAtIndexPath:indexPath]];
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
-    return 70;
+    return 120;
 }
 
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -94,26 +106,21 @@
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
     if (editingStyle == UITableViewCellEditingStyleDelete) {
         //remove the deleted object from your data source.
-        //If your data source is an NSMutableArray, do this
-        [[ListController sharedInstance]removeList:[ListController sharedInstance].days[indexPath.row]];
+        [[ListController sharedInstance]removeList:[ListController sharedInstance].lists[indexPath.row]];
         [tableView reloadData]; // tell table to refresh now
     }
 }
 
-//-(void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender{
-//    ListTableViewCell *cell = sender;
-//    NSIndexPath *indexPath = [self.tableView indexPathForCell:cell];
-//    CurrentDayViewController *viewController = segue.destinationViewController;
-//}
-
-/*
 #pragma mark - Navigation
 
-// In a storyboard-based application, you will often want to do a little preparation before navigation
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
+    if ([[segue identifier] isEqualToString:@"listTappedSegue"])
+    {
+        NSIndexPath *indexPath = [self.tableView indexPathForCell:sender];
+        CurrentDayViewController *destinationViewController = segue.destinationViewController;
+        destinationViewController.list = [ListController sharedInstance].lists[indexPath.row];
+    }
 }
-*/
+
 
 @end

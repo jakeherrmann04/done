@@ -14,7 +14,7 @@
 @interface Entry : NSManagedObject
 
 @property (nonatomic, retain) NSString * title;
-@property (nonatomic, retain) NSNumber * check;
+@property (nonatomic, assign) Boolean check;
 @property (nonatomic, retain) NSDate * timeStamp;
 @property (nonatomic, retain) Segment *segment;
 

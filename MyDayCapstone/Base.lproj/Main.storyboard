@@ -43,7 +43,7 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                         </tableViewCellContentView>
                                         <connections>
-                                            <segue destination="5t1-LD-Mj8" kind="show" identifier="daySegue" id="FXS-za-LgY"/>
+                                            <segue destination="5t1-LD-Mj8" kind="show" identifier="listTappedSegue" id="3yF-Gn-8VT"/>
                                         </connections>
                                     </tableViewCell>
                                 </prototypes>
@@ -110,6 +110,7 @@
                                                     <textInputTraits key="textInputTraits"/>
                                                     <connections>
                                                         <action selector="weFinishedEditing:" destination="pDo-Md-uLu" eventType="editingDidEnd" id="wsT-Fg-2vH"/>
+                                                        <outlet property="delegate" destination="5t1-LD-Mj8" id="ShW-z1-sf1"/>
                                                     </connections>
                                                 </textField>
                                                 <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="j4J-cF-wgT">
@@ -161,7 +162,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="U6A-pu-SZ0" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="136" y="335"/>
+            <point key="canvasLocation" x="-79" y="223"/>
         </scene>
     </scenes>
     <resources>

@@ -7,6 +7,9 @@
 //
 
 #import "DetailTaskTableViewCell.h"
+#import "Segment.h"
+#import "Entry.h"
+
 
 @interface DetailTaskTableViewCell ()
 
@@ -40,20 +43,7 @@
 
 
 - (IBAction)checkButtonTapped:(id)sender {
-    
-    [self.checkButton setImage:[UIImage imageNamed:@"empty"] forState:UIControlStateNormal];
-    [self.checkButton setImage:[UIImage imageNamed:@"circleCheck"] forState:UIControlStateSelected];
-    
-    self.checkButton.selected = !self.checkButton.selected;
-    NSInteger *checkedNumber = 0;
-
-    if (self.checkButton.selected) {
-        NSLog(@"Checked");
-        checkedNumber = 1;
-    }else if (!self.checkButton.selected){
-        NSLog(@"Unchecked");
-        checkedNumber = 0;
-    }
+    [self.delegate checkBoxWasChecked:self];
     
 }
 

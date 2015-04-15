@@ -13,22 +13,23 @@
 
 @interface ListController : NSObject
 
-@property (nonatomic, strong) List *list;
-
 + (ListController*)sharedInstance;
 
-- (NSArray *)days;
-- (void)addDayWithTitle:(NSString *)title;
-- (void)removeList:(List *)list;
+- (void)addListWithTitle:(NSString *)title; //C
+- (NSArray *)lists;                         //R
+//NOT NEEDED                                //U
+- (void)removeList:(List *)list;            //D
+- (void)synchronize;
 
-- (void)updateWithList:(List *)list;
-- (NSArray *)sections;
-- (void)addSegmentToList:(List *)list withTitle:(NSString *)string;
-- (void)addEntryToSegment:(Segment *)segment;
-- (void)removeSegment:(Segment *)segment;
+//// OLD
 
-- (void)addTitleToEntry:(Entry *)entry withTitle:(NSString *)title;
-- (NSArray *)entries;
+//- (NSArray *)sections;
+//- (void)addSegmentToList:(List *)list withTitle:(NSString *)string;
+//- (void)addEntryToSegment:(Segment *)segment;
+//- (void)removeSegment:(Segment *)segment;
+//
+//- (void)addTitleToEntry:(Entry *)entry withTitle:(NSString *)title;
+//- (NSArray *)entries;
 
 
 

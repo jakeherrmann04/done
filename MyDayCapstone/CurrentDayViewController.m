@@ -10,7 +10,9 @@
 #import "SwipeCustomCell.h"
 #import "ListController.h"
 #import "DetailTaskTableViewCell.h"
+#import "SegmentController.h"
 
+static NSString *listCellID = @"listCellID";
 
 static NSString *cellIdentifier = @"customCell";
 static NSString *detailCellIdentifier = @"detailCell";
@@ -18,9 +20,7 @@ static NSString *detailCellIdentifier = @"detailCell";
 @interface CurrentDayViewController () <SWTableViewCellDelegate, UITextFieldDelegate, TableViewCellTextFieldDelegate>
 
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
-
-
-
+@property (nonatomic, assign) BOOL checkEntry;
 @end
 
 @implementation CurrentDayViewController
@@ -33,11 +33,11 @@ static NSString *detailCellIdentifier = @"detailCell";
 {
     [super viewDidLoad];
     
-    self.title = [ListController sharedInstance].list.title;
+    self.title = self.list.title;
 
-    [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"listCell"];
-    UIBarButtonItem *addDay = [[UIBarButtonItem alloc]initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addSection)];
-    [self.navigationItem setRightBarButtonItem:addDay];
+    [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:listCellID];
+    UIBarButtonItem *addSectionButton = [[UIBarButtonItem alloc]initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addSection)];
+    [self.navigationItem setRightBarButtonItem:addSectionButton];
 
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     self.tableView.backgroundColor = [UIColor whiteColor];
@@ -48,8 +48,12 @@ static NSString *detailCellIdentifier = @"detailCell";
     [refreshControl addTarget:self action:@selector(refresh:) forControlEvents:UIControlEventValueChanged];
     [self.tableView addSubview:refreshControl];
     
+    UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc]
+                                               initWithTarget:self action:@selector(handleLongPress:)];
     
-
+    longPress.minimumPressDuration = 1.5; //seconds
+    [self.tableView addGestureRecognizer:longPress];
+    
     if (!self.expandedSections)
     {
         self.expandedSections = [[NSMutableIndexSet alloc] init];
@@ -60,23 +64,84 @@ static NSString *detailCellIdentifier = @"detailCell";
 {
     [super viewDidAppear:animated];
     
-    
 }
+
+- (BOOL)textFieldShouldReturn:(UITextField *)textField
+{
+    [textField resignFirstResponder];
+    return YES;
+}
+
+-(void)handleLongPress:(UILongPressGestureRecognizer *)gestureRecognizer{
+    CGPoint point = [gestureRecognizer locationInView:self.tableView];
+    
+    NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:point];
+
+    DetailTaskTableViewCell *currentCell  = (DetailTaskTableViewCell*)indexPath;
+    Segment *segment = self.list.segments[currentCell.section];
+    Entry *entry = segment.entries[currentCell.row -1];
+    
+    if (indexPath == nil) {
+        NSLog(@"long press on table view but not on a row");
+    } else if (gestureRecognizer.state == UIGestureRecognizerStateBegan) {
+        NSLog(@"long press on table view at row %ld", (long)indexPath.row);
+        [[SegmentController sharedInstance]removeEntry:entry];
+        [self.tableView reloadData];
+    } else {
+        NSLog(@"gestureRecognizer.state = %ld", (long)gestureRecognizer.state);
+    }
+}
+
+
+#pragma mark - Custom Cell delagate methods
 
 -(void)textFieldFinishedEditing:(id)sender{
     
-    NSIndexPath *indexPath = [self.tableView indexPathForCell:sender];
-    Entry *entry = [ListController sharedInstance].entries[indexPath.row];
+//    NSIndexPath *indexPath = [self.tableView indexPathForCell:sender];
+    DetailTaskTableViewCell *currentCell = (DetailTaskTableViewCell*)sender;
     
-    [[ListController sharedInstance]addTitleToEntry:entry withTitle:[sender taskTextField].text];
+    //We need to get the entry/segments
+    Segment *segment = self.list.segments[currentCell.section];
+
+    Entry *entry = segment.entries[currentCell.row - 1];
+    entry.title = [sender taskTextField].text;
+    bool checkEntry = [entry.check boolValue];
+    
+    [[ListController sharedInstance] synchronize];
 }
 
+- (void)checkBoxWasChecked:(id)sender{
+    
+    DetailTaskTableViewCell *currentCell = (DetailTaskTableViewCell*)sender;
+    [currentCell.checkButton setImage:[UIImage imageNamed:@"empty"] forState:UIControlStateNormal];
+    [currentCell.checkButton setImage:[UIImage imageNamed:@"circleCheck"] forState:UIControlStateSelected];
+    
+    currentCell.checkButton.selected = !currentCell.checkButton.selected;
+    Segment *segment = self.list.segments[currentCell.section];
+    Entry *entry = segment.entries[currentCell.row -1];
+    entry.check = [self.checkEntry];
+    if (currentCell.checkButton.isSelected) {
+        NSNumber *checkNumber = [NSNumber numberWithInt:1];
+        entry.check = checkNumber;
+        NSLog(@"Checked");
+        [self.tableView reloadData];
+    }else if (!currentCell.checkButton.isSelected){
+        NSNumber *checkNumber = [NSNumber numberWithInt:0];
+        entry.check = checkNumber;
+        NSLog(@"Unchecked");
+        [self.tableView reloadData];
+    }
+    [[ListController sharedInstance] synchronize];
+
+}
 
 - (void)refresh:(UIRefreshControl *)refreshControl
 {
     [self.tableView reloadData];
     [refreshControl endRefreshing];
 }
+
+#pragma mark - adding segment methods
 
 -(void)addSection{
     UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Add Section title" message:@"Please enter title below." preferredStyle:UIAlertControllerStyleAlert];
@@ -88,10 +153,10 @@ static NSString *detailCellIdentifier = @"detailCell";
     
     [alertController addAction:[UIAlertAction actionWithTitle:@"Add Section" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
         UITextField *textField = [[alertController textFields]firstObject];
-        [[ListController sharedInstance]addSegmentToList:[ListController sharedInstance].list withTitle:textField.text];
+        
+        [[SegmentController sharedInstance] addSegmentToList:self.list withTitle:textField.text];
+        
         [self.tableView reloadData];
-        
-        
     }]];
     
     [alertController addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
@@ -107,7 +172,7 @@ static NSString *detailCellIdentifier = @"detailCell";
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-    return [ListController sharedInstance].list.segments.count;
+    return self.list.segments.count;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
@@ -116,7 +181,7 @@ static NSString *detailCellIdentifier = @"detailCell";
     {
         if ([self.expandedSections containsIndex:section])
         {
-            Segment *seg = [ListController sharedInstance].list.segments[section];
+            Segment *seg = self.list.segments[section];
             return seg.entries.count + 1;
         }
         
@@ -141,34 +206,47 @@ static NSString *detailCellIdentifier = @"detailCell";
         {
             if ([self.expandedSections containsIndex:indexPath.section])
             {
-                swipeCell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier forIndexPath:indexPath];
+                swipeCell = [[SwipeCustomCell alloc]initWithStyle:UITableViewCellStyleValue2 reuseIdentifier:cellIdentifier];
+                //swipeCell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier forIndexPath:indexPath];
                 
                 swipeCell.leftUtilityButtons = [self leftButtons];
                 swipeCell.rightUtilityButtons = [self rightButtons];
                 swipeCell.delegate = self;
 
-                Segment *segment = [ListController sharedInstance].list.segments[indexPath.section];
+                Segment *segment = self.list.segments[indexPath.section];
                 NSString* title = segment.title;
+                NSNumber *percentage = [[SegmentController sharedInstance]findPercentageOfEntriesCompleted:segment];
+                NSString *percentageString = percentage.stringValue;
+                swipeCell.detailTextLabel.text = percentageString;
+//                UILabel *percentageLabel = [UILabel new];
+//                percentageLabel.text = percentageString;
+//                swipeCell.editingAccessoryView = percentageLabel;
                 swipeCell.textLabel.text = title;
                 swipeCell.textLabel.textColor = [UIColor colorWithRed:0.976 green:0.922 blue:0.855 alpha:1];
-                swipeCell.backgroundColor = [UIColor colorWithRed:0.745 green:0.388 blue:0.329 alpha:1];
+                swipeCell.backgroundColor = [UIColor colorWithRed:0.745 green:0.388 blue:0.329 alpha:percentage.floatValue];
                 
                 cell = swipeCell;
                 
             }
             else
             {
-                swipeCell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier forIndexPath:indexPath];
+                swipeCell = [[SwipeCustomCell alloc]initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:cellIdentifier];
+             //   swipeCell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier forIndexPath:indexPath];
                 swipeCell.leftUtilityButtons = [self leftButtons];
                 swipeCell.rightUtilityButtons = [self rightButtons];
                 swipeCell.delegate = self;
 
-                Segment *segment = [ListController sharedInstance].list.segments[indexPath.section];
+                Segment *segment = self.list.segments[indexPath.section];
                 NSString* title = segment.title;
+                NSNumber *percentage = [[SegmentController sharedInstance]findPercentageOfEntriesCompleted:segment];
+                NSString *percentageString = percentage.stringValue;
+                swipeCell.detailTextLabel.text = percentageString;
+//                UILabel *percentageLabel = [UILabel new];
+//                percentageLabel.text = percentageString;
+//                swipeCell.editingAccessoryView = percentageLabel;
                 swipeCell.textLabel.text = title;
                 swipeCell.textLabel.textColor = [UIColor colorWithRed:0.976 green:0.922 blue:0.855 alpha:1];
-                
-                swipeCell.backgroundColor = [UIColor colorWithRed:0.745 green:0.388 blue:0.329 alpha:1];
+                swipeCell.backgroundColor = [UIColor colorWithRed:0.745 green:0.388 blue:0.329 alpha:percentage.floatValue];
                 cell = swipeCell;
             }
         }
@@ -177,10 +255,15 @@ static NSString *detailCellIdentifier = @"detailCell";
             
             detailCell = [tableView dequeueReusableCellWithIdentifier:detailCellIdentifier forIndexPath:indexPath];
             detailCell.delegate = self;
+            detailCell.section = (int)indexPath.section;
+            detailCell.row = (int)indexPath.row;
             detailCell.accessoryView = nil;
             detailCell.backgroundColor = [UIColor colorWithRed:0.800 green:0.588 blue:0.306 alpha:1];
-            detailCell.taskTextField.text = [[ListController sharedInstance].entries[indexPath.row -1]title];
-           
+            Segment *segment = self.list.segments[indexPath.section];
+            Entry *entry = segment.entries[indexPath.row - 1];
+            detailCell.taskTextField.text = entry.title;
+            
+
             cell = detailCell;
 
         }
@@ -212,7 +295,6 @@ static NSString *detailCellIdentifier = @"detailCell";
     [leftUtilityButtons sw_addUtilityButtonWithColor:
      [UIColor colorWithRed:0.725 green:0.129 blue:0.310 alpha:1]
                                                 icon:[UIImage imageNamed:@"check.png"]];
-    
     return leftUtilityButtons;
 }
 
@@ -259,21 +341,19 @@ static NSString *detailCellIdentifier = @"detailCell";
                 [tableView deleteRowsAtIndexPaths:tmpArray
                                  withRowAnimation:UITableViewRowAnimationTop];
                 
-                cell.backgroundColor = [UIColor colorWithRed:0.745 green:0.388 blue:0.329 alpha:1];
+                //cell.backgroundColor = [UIColor colorWithRed:0.745 green:0.388 blue:0.329 alpha:1];
 
             }
             else
             {
                 [tableView insertRowsAtIndexPaths:tmpArray
                                  withRowAnimation:UITableViewRowAnimationTop];
-                cell.backgroundColor = [UIColor colorWithRed:0.745 green:0.388 blue:0.329 alpha:1];
+                //cell.backgroundColor = [UIColor colorWithRed:0.745 green:0.388 blue:0.329 alpha:1];
                 
             }
         }
     }
 }
-
-
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
     if([self.expandedSections containsIndex:indexPath.section])
@@ -296,7 +376,7 @@ static NSString *detailCellIdentifier = @"detailCell";
         default:
             case 1:
             NSLog(@"Delete");
-            [[ListController sharedInstance]removeSegment:[ListController sharedInstance].list.segments[path.section]];
+            [[SegmentController sharedInstance] removeSegment:self.list.segments[path.section]];
             [self.tableView reloadData];
             break;
     }
@@ -305,11 +385,12 @@ static NSString *detailCellIdentifier = @"detailCell";
 - (void)swipeableTableViewCell:(SWTableViewCell *)cell didTriggerLeftUtilityButtonWithIndex:(NSInteger)index {
     
     NSIndexPath *path = [self.tableView indexPathForCell:cell];
-    Segment *seg = [ListController sharedInstance].list.segments[path.section];
+    Segment *segment = self.list.segments[path.section];
 
     switch (index) {
         case 0:
-            [[ListController sharedInstance] addEntryToSegment:seg];
+            [[SegmentController sharedInstance] addEntryToSegment:segment];
+            
             NSLog(@"check button was pressed");
             break;
         case 1:

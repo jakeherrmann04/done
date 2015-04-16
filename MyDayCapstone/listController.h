@@ -10,6 +10,7 @@
 #import "List.h"
 #import "Entry.h"
 #import "Segment.h"
+#import "Stack.h"
 
 @interface ListController : NSObject
 

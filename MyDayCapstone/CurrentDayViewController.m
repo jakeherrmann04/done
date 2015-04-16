@@ -43,11 +43,6 @@ static NSString *detailCellIdentifier = @"detailCell";
     self.tableView.backgroundColor = [UIColor whiteColor];
     self.tableView.separatorInset = UIEdgeInsetsMake(0, 0, 0, 0);
     
-    UIRefreshControl *refreshControl = [UIRefreshControl new];
-    refreshControl.attributedTitle = [[NSAttributedString alloc]initWithString:@"Loading"];
-    [refreshControl addTarget:self action:@selector(refresh:) forControlEvents:UIControlEventValueChanged];
-    [self.tableView addSubview:refreshControl];
-    
     UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc]
                                                initWithTarget:self action:@selector(handleLongPress:)];
     
@@ -105,7 +100,6 @@ static NSString *detailCellIdentifier = @"detailCell";
 
     Entry *entry = segment.entries[currentCell.row - 1];
     entry.title = [sender taskTextField].text;
-    bool checkEntry = [entry.check boolValue];
     
     [[ListController sharedInstance] synchronize];
 }
@@ -117,9 +111,9 @@ static NSString *detailCellIdentifier = @"detailCell";
     [currentCell.checkButton setImage:[UIImage imageNamed:@"circleCheck"] forState:UIControlStateSelected];
     
     currentCell.checkButton.selected = !currentCell.checkButton.selected;
+    
     Segment *segment = self.list.segments[currentCell.section];
     Entry *entry = segment.entries[currentCell.row -1];
-    entry.check = [self.checkEntry];
     if (currentCell.checkButton.isSelected) {
         NSNumber *checkNumber = [NSNumber numberWithInt:1];
         entry.check = checkNumber;
@@ -133,12 +127,6 @@ static NSString *detailCellIdentifier = @"detailCell";
     }
     [[ListController sharedInstance] synchronize];
 
-}
-
-- (void)refresh:(UIRefreshControl *)refreshControl
-{
-    [self.tableView reloadData];
-    [refreshControl endRefreshing];
 }
 
 #pragma mark - adding segment methods
@@ -222,6 +210,7 @@ static NSString *detailCellIdentifier = @"detailCell";
 //                percentageLabel.text = percentageString;
 //                swipeCell.editingAccessoryView = percentageLabel;
                 swipeCell.textLabel.text = title;
+                [swipeCell.textLabel setFont: [UIFont fontWithName:@"Arial" size:20]];
                 swipeCell.textLabel.textColor = [UIColor colorWithRed:0.976 green:0.922 blue:0.855 alpha:1];
                 swipeCell.backgroundColor = [UIColor colorWithRed:0.745 green:0.388 blue:0.329 alpha:percentage.floatValue];
                 
@@ -230,7 +219,7 @@ static NSString *detailCellIdentifier = @"detailCell";
             }
             else
             {
-                swipeCell = [[SwipeCustomCell alloc]initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:cellIdentifier];
+                swipeCell = [[SwipeCustomCell alloc]initWithStyle:UITableViewCellStyleValue2 reuseIdentifier:cellIdentifier];
              //   swipeCell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier forIndexPath:indexPath];
                 swipeCell.leftUtilityButtons = [self leftButtons];
                 swipeCell.rightUtilityButtons = [self rightButtons];
@@ -245,6 +234,7 @@ static NSString *detailCellIdentifier = @"detailCell";
 //                percentageLabel.text = percentageString;
 //                swipeCell.editingAccessoryView = percentageLabel;
                 swipeCell.textLabel.text = title;
+                [swipeCell.textLabel setFont: [UIFont fontWithName:@"Arial" size:20]];
                 swipeCell.textLabel.textColor = [UIColor colorWithRed:0.976 green:0.922 blue:0.855 alpha:1];
                 swipeCell.backgroundColor = [UIColor colorWithRed:0.745 green:0.388 blue:0.329 alpha:percentage.floatValue];
                 cell = swipeCell;
@@ -252,8 +242,9 @@ static NSString *detailCellIdentifier = @"detailCell";
         }
         else
         {
-            
             detailCell = [tableView dequeueReusableCellWithIdentifier:detailCellIdentifier forIndexPath:indexPath];
+            [detailCell.checkButton setImage:[UIImage imageNamed:@"empty"] forState:UIControlStateNormal];
+            [detailCell.checkButton setImage:[UIImage imageNamed:@"circleCheck"] forState:UIControlStateSelected];
             detailCell.delegate = self;
             detailCell.section = (int)indexPath.section;
             detailCell.row = (int)indexPath.row;
@@ -262,7 +253,12 @@ static NSString *detailCellIdentifier = @"detailCell";
             Segment *segment = self.list.segments[indexPath.section];
             Entry *entry = segment.entries[indexPath.row - 1];
             detailCell.taskTextField.text = entry.title;
-            
+            if([entry.check isEqualToNumber:@1]){
+                [detailCell.checkButton setSelected:YES];
+            }else
+            {
+                [detailCell.checkButton setSelected:normal];
+            }
 
             cell = detailCell;
 

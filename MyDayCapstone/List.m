@@ -1,18 +1,19 @@
 //
 //  List.m
-//  MyDayCapstone
+//  
 //
-//  Created by Jake Herrmann on 3/30/15.
-//  Copyright (c) 2015 Jake Herrmann. All rights reserved.
+//  Created by Jake Herrmann on 4/15/15.
+//
 //
 
 #import "List.h"
+#import "Segment.h"
 
 
 @implementation List
 
-@dynamic title;
 @dynamic percentage;
+@dynamic title;
 @dynamic segments;
 
 @end

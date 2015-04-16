@@ -9,6 +9,6 @@
 #import "SWTableViewCell.h"
 
 @interface SwipeCustomCell : SWTableViewCell <UITextFieldDelegate>
-@property (weak, nonatomic) IBOutlet UIView *titleLabel;
+@property (weak, nonatomic) IBOutlet UILabel *titleLabel;
 
 @end

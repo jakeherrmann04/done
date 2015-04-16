@@ -28,6 +28,14 @@
     return self;
 }
 
+- (void)awakeFromNib
+{
+
+    self.checkButton.layer.borderColor = [UIColor whiteColor].CGColor;
+    self.checkButton.layer.borderWidth = 1;
+    self.checkButton.layer.cornerRadius = self.checkButton.frame.size.width/2;
+}
+
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {
     [super setSelected:selected animated:animated];
 
@@ -37,10 +45,10 @@
 //-(void)textFieldDidEndEditing:(UITextField *)textField{
 //    
 //}
+
 - (IBAction)weFinishedEditing:(UITextField *)sender {
     [self.delegate textFieldFinishedEditing:self];
 }
-
 
 - (IBAction)checkButtonTapped:(id)sender {
     [self.delegate checkBoxWasChecked:self];

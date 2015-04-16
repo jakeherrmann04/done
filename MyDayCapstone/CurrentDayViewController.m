@@ -40,7 +40,7 @@ static NSString *detailCellIdentifier = @"detailCell";
     [self.navigationItem setRightBarButtonItem:addSectionButton];
 
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
-    self.tableView.backgroundColor = [UIColor whiteColor];
+//    self.tableView.backgroundColor = [UIColor whiteColor];
     self.tableView.separatorInset = UIEdgeInsetsMake(0, 0, 0, 0);
     
     UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc]
@@ -107,8 +107,8 @@ static NSString *detailCellIdentifier = @"detailCell";
 - (void)checkBoxWasChecked:(id)sender{
     
     DetailTaskTableViewCell *currentCell = (DetailTaskTableViewCell*)sender;
-    [currentCell.checkButton setImage:[UIImage imageNamed:@"empty"] forState:UIControlStateNormal];
-    [currentCell.checkButton setImage:[UIImage imageNamed:@"circleCheck"] forState:UIControlStateSelected];
+//    [currentCell.checkButton setImage:[UIImage imageNamed:@"empty"] forState:UIControlStateNormal];
+//    [currentCell.checkButton setImage:[UIImage imageNamed:@"circleCheck"] forState:UIControlStateSelected];
     
     currentCell.checkButton.selected = !currentCell.checkButton.selected;
     
@@ -118,11 +118,13 @@ static NSString *detailCellIdentifier = @"detailCell";
         NSNumber *checkNumber = [NSNumber numberWithInt:1];
         entry.check = checkNumber;
         NSLog(@"Checked");
+        currentCell.checkButton.backgroundColor = [UIColor whiteColor];
         [self.tableView reloadData];
     }else if (!currentCell.checkButton.isSelected){
         NSNumber *checkNumber = [NSNumber numberWithInt:0];
         entry.check = checkNumber;
         NSLog(@"Unchecked");
+        currentCell.checkButton.backgroundColor = [UIColor clearColor];
         [self.tableView reloadData];
     }
     [[ListController sharedInstance] synchronize];
@@ -194,89 +196,72 @@ static NSString *detailCellIdentifier = @"detailCell";
         {
             if ([self.expandedSections containsIndex:indexPath.section])
             {
-                swipeCell = [[SwipeCustomCell alloc]initWithStyle:UITableViewCellStyleValue2 reuseIdentifier:cellIdentifier];
-                //swipeCell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier forIndexPath:indexPath];
-                
-                swipeCell.leftUtilityButtons = [self leftButtons];
-                swipeCell.rightUtilityButtons = [self rightButtons];
-                swipeCell.delegate = self;
-
-                Segment *segment = self.list.segments[indexPath.section];
-                NSString* title = segment.title;
-                NSNumber *percentage = [[SegmentController sharedInstance]findPercentageOfEntriesCompleted:segment];
-                NSString *percentageString = percentage.stringValue;
-                swipeCell.detailTextLabel.text = percentageString;
-//                UILabel *percentageLabel = [UILabel new];
-//                percentageLabel.text = percentageString;
-//                swipeCell.editingAccessoryView = percentageLabel;
-                swipeCell.textLabel.text = title;
-                [swipeCell.textLabel setFont: [UIFont fontWithName:@"Arial" size:20]];
-                swipeCell.textLabel.textColor = [UIColor colorWithRed:0.976 green:0.922 blue:0.855 alpha:1];
-                swipeCell.backgroundColor = [UIColor colorWithRed:0.745 green:0.388 blue:0.329 alpha:percentage.floatValue];
-                
-                cell = swipeCell;
-                
+                cell = [self setUpCellWithTableView:tableView andCell:swipeCell withIndexPath:indexPath];
             }
             else
             {
-                swipeCell = [[SwipeCustomCell alloc]initWithStyle:UITableViewCellStyleValue2 reuseIdentifier:cellIdentifier];
-             //   swipeCell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier forIndexPath:indexPath];
-                swipeCell.leftUtilityButtons = [self leftButtons];
-                swipeCell.rightUtilityButtons = [self rightButtons];
-                swipeCell.delegate = self;
-
-                Segment *segment = self.list.segments[indexPath.section];
-                NSString* title = segment.title;
-                NSNumber *percentage = [[SegmentController sharedInstance]findPercentageOfEntriesCompleted:segment];
-                NSString *percentageString = percentage.stringValue;
-                swipeCell.detailTextLabel.text = percentageString;
-//                UILabel *percentageLabel = [UILabel new];
-//                percentageLabel.text = percentageString;
-//                swipeCell.editingAccessoryView = percentageLabel;
-                swipeCell.textLabel.text = title;
-                [swipeCell.textLabel setFont: [UIFont fontWithName:@"Arial" size:20]];
-                swipeCell.textLabel.textColor = [UIColor colorWithRed:0.976 green:0.922 blue:0.855 alpha:1];
-                swipeCell.backgroundColor = [UIColor colorWithRed:0.745 green:0.388 blue:0.329 alpha:percentage.floatValue];
-                cell = swipeCell;
+                cell = [self setUpCellWithTableView:tableView andCell:swipeCell withIndexPath:indexPath];
             }
         }
         else
         {
-            detailCell = [tableView dequeueReusableCellWithIdentifier:detailCellIdentifier forIndexPath:indexPath];
-            [detailCell.checkButton setImage:[UIImage imageNamed:@"empty"] forState:UIControlStateNormal];
-            [detailCell.checkButton setImage:[UIImage imageNamed:@"circleCheck"] forState:UIControlStateSelected];
+            detailCell = [tableView dequeueReusableCellWithIdentifier:detailCellIdentifier];
+            
             detailCell.delegate = self;
             detailCell.section = (int)indexPath.section;
             detailCell.row = (int)indexPath.row;
             detailCell.accessoryView = nil;
-            detailCell.backgroundColor = [UIColor colorWithRed:0.800 green:0.588 blue:0.306 alpha:1];
             Segment *segment = self.list.segments[indexPath.section];
             Entry *entry = segment.entries[indexPath.row - 1];
             detailCell.taskTextField.text = entry.title;
             if([entry.check isEqualToNumber:@1]){
-                [detailCell.checkButton setSelected:YES];
-            }else
-            {
-                [detailCell.checkButton setSelected:normal];
+                detailCell.checkButton.backgroundColor = [UIColor whiteColor];
+            }else{
+                detailCell.checkButton.backgroundColor = [UIColor clearColor];
             }
 
             cell = detailCell;
 
         }
     }
+    
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
  
     return cell;
+}
+
+- (SwipeCustomCell*) setUpCellWithTableView:(UITableView*)tableView andCell:(SwipeCustomCell*)swipeCell withIndexPath:(NSIndexPath*)indexPath {
+    //                swipeCell = [[SwipeCustomCell alloc]initWithStyle:UITableViewCellStyleValue2 reuseIdentifier:cellIdentifier];
+    swipeCell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier];
+    
+    swipeCell.leftUtilityButtons = [self leftButtons];
+    swipeCell.rightUtilityButtons = [self rightButtons];
+    swipeCell.delegate = self;
+    
+    Segment *segment = self.list.segments[indexPath.section];
+    NSString* title = segment.title;
+    NSNumber *percentage = [[SegmentController sharedInstance]findPercentageOfEntriesCompleted:segment];
+    NSLog(@"PERCENTAGE %@", percentage);
+    NSString *percentageString = percentage.stringValue;
+    swipeCell.detailTextLabel.text = percentageString;
+    //                UILabel *percentageLabel = [UILabel new];
+    //                percentageLabel.text = percentageString;
+    //                swipeCell.editingAccessoryView = percentageLabel;
+    swipeCell.titleLabel.text = title;
+    //                [swipeCell.textLabel setFont: [UIFont fontWithName:@"Arial" size:20]];
+    //                swipeCell.textLabel.textColor = [UIColor colorWithRed:0.976 green:0.922 blue:0.855 alpha:1];
+    //                swipeCell.backgroundColor = [UIColor colorWithRed:0.745 green:0.388 blue:0.329 alpha:percentage.floatValue];
+    return swipeCell;
+
 }
 
 - (NSArray *)rightButtons
 {
     NSMutableArray *rightUtilityButtons = [NSMutableArray new];
+   
     [rightUtilityButtons sw_addUtilityButtonWithColor:
-     [UIColor colorWithRed:0.980 green:0.537 blue:0.502 alpha:1]
-                                                title:@"More"];
-    [rightUtilityButtons sw_addUtilityButtonWithColor:
-     [UIColor colorWithRed:1.0f green:0.231f blue:0.188 alpha:1.0f]
-                                                title:@"Delete"];
+     [UIColor colorWithRed:1.0f green:0.231f blue:0.188 alpha:0.0f]
+                                                icon:[UIImage imageNamed:@"delete"]];
     
     return rightUtilityButtons;
 }
@@ -286,11 +271,9 @@ static NSString *detailCellIdentifier = @"detailCell";
     NSMutableArray *leftUtilityButtons = [NSMutableArray new];
     
     [leftUtilityButtons sw_addUtilityButtonWithColor:
-    [UIColor colorWithRed:1.000 green:0.208 blue:0.263 alpha:1]
-                                                icon:[UIImage imageNamed:@"add.png"]];
-    [leftUtilityButtons sw_addUtilityButtonWithColor:
-     [UIColor colorWithRed:0.725 green:0.129 blue:0.310 alpha:1]
-                                                icon:[UIImage imageNamed:@"check.png"]];
+    [UIColor colorWithRed:1.000 green:0.208 blue:0.263 alpha:0]
+                                                icon:[UIImage imageNamed:@"plus"]];
+    
     return leftUtilityButtons;
 }
 
@@ -337,14 +320,14 @@ static NSString *detailCellIdentifier = @"detailCell";
                 [tableView deleteRowsAtIndexPaths:tmpArray
                                  withRowAnimation:UITableViewRowAnimationTop];
                 
-                //cell.backgroundColor = [UIColor colorWithRed:0.745 green:0.388 blue:0.329 alpha:1];
+//                cell.backgroundColor = [UIColor colorWithRed:0.745 green:0.388 blue:0.329 alpha:1];
 
             }
             else
             {
                 [tableView insertRowsAtIndexPaths:tmpArray
                                  withRowAnimation:UITableViewRowAnimationTop];
-                //cell.backgroundColor = [UIColor colorWithRed:0.745 green:0.388 blue:0.329 alpha:1];
+//                cell.backgroundColor = [UIColor colorWithRed:0.745 green:0.388 blue:0.329 alpha:1];
                 
             }
         }
@@ -354,28 +337,21 @@ static NSString *detailCellIdentifier = @"detailCell";
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
     if([self.expandedSections containsIndex:indexPath.section])
     {
-        return 43;
+        return 65;
     }
     else
     {
-        return 100;
+        return 80;
     }
 }
 
 -(void)swipeableTableViewCell:(SWTableViewCell *)cell didTriggerRightUtilityButtonWithIndex:(NSInteger)index{
     NSIndexPath *path = [self.tableView indexPathForCell:cell];
 
-    switch (index) {
-        case 0:
-            NSLog(@"More");
-            break;
-        default:
-            case 1:
-            NSLog(@"Delete");
-            [[SegmentController sharedInstance] removeSegment:self.list.segments[path.section]];
-            [self.tableView reloadData];
-            break;
-    }
+    NSLog(@"Delete");
+    [[SegmentController sharedInstance] removeSegment:self.list.segments[path.section]];
+    [self.tableView reloadData];
+    
 }
 
 - (void)swipeableTableViewCell:(SWTableViewCell *)cell didTriggerLeftUtilityButtonWithIndex:(NSInteger)index {

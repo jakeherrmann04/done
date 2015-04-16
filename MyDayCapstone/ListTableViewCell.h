@@ -10,4 +10,6 @@
 
 @interface ListTableViewCell : UITableViewCell
 
+@property (weak, nonatomic) IBOutlet UILabel *cellTitle;
+
 @end

@@ -10,7 +10,9 @@
 #import "SwipeCustomCell.h"
 #import "ListController.h"
 #import "DetailTaskTableViewCell.h"
+#import "NewSegmentViewController.h"
 #import "SegmentController.h"
+#import "NewListViewController.h"
 
 static NSString *listCellID = @"listCellID";
 
@@ -21,6 +23,9 @@ static NSString *detailCellIdentifier = @"detailCell";
 
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
 @property (nonatomic, assign) BOOL checkEntry;
+@property (nonatomic) CGPoint originalCenter;
+@property (nonatomic, assign) BOOL deleteOnDragRelease;
+
 @end
 
 @implementation CurrentDayViewController
@@ -53,11 +58,15 @@ static NSString *detailCellIdentifier = @"detailCell";
     {
         self.expandedSections = [[NSMutableIndexSet alloc] init];
     }
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(newListReload) name:@"segmentListReload" object:nil];
+
 }
 
 -(void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
+    [self.tableView reloadData];
     
 }
 
@@ -107,8 +116,6 @@ static NSString *detailCellIdentifier = @"detailCell";
 - (void)checkBoxWasChecked:(id)sender{
     
     DetailTaskTableViewCell *currentCell = (DetailTaskTableViewCell*)sender;
-//    [currentCell.checkButton setImage:[UIImage imageNamed:@"empty"] forState:UIControlStateNormal];
-//    [currentCell.checkButton setImage:[UIImage imageNamed:@"circleCheck"] forState:UIControlStateSelected];
     
     currentCell.checkButton.selected = !currentCell.checkButton.selected;
     
@@ -117,13 +124,11 @@ static NSString *detailCellIdentifier = @"detailCell";
     if (currentCell.checkButton.isSelected) {
         NSNumber *checkNumber = [NSNumber numberWithInt:1];
         entry.check = checkNumber;
-        NSLog(@"Checked");
         currentCell.checkButton.backgroundColor = [UIColor whiteColor];
         [self.tableView reloadData];
     }else if (!currentCell.checkButton.isSelected){
         NSNumber *checkNumber = [NSNumber numberWithInt:0];
         entry.check = checkNumber;
-        NSLog(@"Unchecked");
         currentCell.checkButton.backgroundColor = [UIColor clearColor];
         [self.tableView reloadData];
     }
@@ -134,25 +139,35 @@ static NSString *detailCellIdentifier = @"detailCell";
 #pragma mark - adding segment methods
 
 -(void)addSection{
-    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Add Section title" message:@"Please enter title below." preferredStyle:UIAlertControllerStyleAlert];
     
-    [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
-        textField.placeholder = @"Section";
-    }];
+    NewListViewController *viewController = [[UIStoryboard storyboardWithName:@"Main" bundle:NULL] instantiateViewControllerWithIdentifier:@"addList"];
+    [self addChildViewController:viewController];
+    [self.view addSubview:viewController.view];
+    [viewController didMoveToParentViewController:self];
+    viewController.view.alpha = 0.0;
+    viewController.list = self.list;
+    viewController.isList = NO;
+    [viewController animateNewListViewOn];
     
-    
-    [alertController addAction:[UIAlertAction actionWithTitle:@"Add Section" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-        UITextField *textField = [[alertController textFields]firstObject];
-        
-        [[SegmentController sharedInstance] addSegmentToList:self.list withTitle:textField.text];
-        
-        [self.tableView reloadData];
-    }]];
-    
-    [alertController addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
-    [self presentViewController:alertController animated:YES completion:nil];
-
-    [self.tableView reloadData];
+//    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Add Section title" message:@"Please enter title below." preferredStyle:UIAlertControllerStyleAlert];
+//    
+//    [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+//        textField.placeholder = @"Section";
+//    }];
+//    
+//    
+//    [alertController addAction:[UIAlertAction actionWithTitle:@"Add Section" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+//        UITextField *textField = [[alertController textFields]firstObject];
+//        
+//        [[SegmentController sharedInstance] addSegmentToList:self.list withTitle:textField.text];
+//        
+//        [self.tableView reloadData];
+//    }]];
+//    
+//    [alertController addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+//    [self presentViewController:alertController animated:YES completion:nil];
+//
+//    [self.tableView reloadData];
 }
 
 - (BOOL)tableView:(UITableView *)tableView canCollapseSection:(NSInteger)section
@@ -205,7 +220,14 @@ static NSString *detailCellIdentifier = @"detailCell";
         }
         else
         {
+            
+           
             detailCell = [tableView dequeueReusableCellWithIdentifier:detailCellIdentifier];
+            
+            UIPanGestureRecognizer* recognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(swipeLeft:)];
+            
+            [detailCell addGestureRecognizer:recognizer];
+
             
             detailCell.delegate = self;
             detailCell.section = (int)indexPath.section;
@@ -230,8 +252,49 @@ static NSString *detailCellIdentifier = @"detailCell";
     return cell;
 }
 
+- (void)swipeLeft:(UIPanGestureRecognizer *)recognizer {
+    DetailTaskTableViewCell *cell = (DetailTaskTableViewCell *)recognizer.view;
+    Segment *segment = self.list.segments[cell.section];
+    Entry *entry = segment.entries[cell.row -1];
+
+    
+    if (recognizer.state == UIGestureRecognizerStateBegan) {
+        // if the gesture has just started, record the current centre location
+
+        self.originalCenter = cell.center;
+    }
+    
+    // 2
+    if (recognizer.state == UIGestureRecognizerStateChanged) {
+        // translate the center
+        CGPoint translation = [recognizer translationInView:cell];
+         cell.center = CGPointMake(_originalCenter.x + translation.x, _originalCenter.y);
+        // determine whether the item has been dragged far enough to initiate a delete / complete
+        self.deleteOnDragRelease = cell.frame.origin.x < -cell.frame.size.width / 2;
+        
+    }
+    
+    // 3
+    if (recognizer.state == UIGestureRecognizerStateEnded) {
+        // the frame this cell would have had before being dragged
+        CGRect originalFrame = CGRectMake(0, cell.frame.origin.y,
+                                          cell.bounds.size.width, cell.bounds.size.height);
+        if (!self.deleteOnDragRelease) {
+            // if the item is not being deleted, snap back to the original location
+            [UIView animateWithDuration:0.2
+                             animations:^{
+                                 cell.frame = originalFrame;
+                                 NSLog(@"HERE");
+                                 [[SegmentController sharedInstance]removeEntry:entry];
+                                 [self.tableView reloadData];
+                             }
+             ];
+        }
+    }
+}
+
 - (SwipeCustomCell*) setUpCellWithTableView:(UITableView*)tableView andCell:(SwipeCustomCell*)swipeCell withIndexPath:(NSIndexPath*)indexPath {
-    //                swipeCell = [[SwipeCustomCell alloc]initWithStyle:UITableViewCellStyleValue2 reuseIdentifier:cellIdentifier];
+
     swipeCell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier];
     
     swipeCell.leftUtilityButtons = [self leftButtons];
@@ -239,18 +302,22 @@ static NSString *detailCellIdentifier = @"detailCell";
     swipeCell.delegate = self;
     
     Segment *segment = self.list.segments[indexPath.section];
-    NSString* title = segment.title;
-    NSNumber *percentage = [[SegmentController sharedInstance]findPercentageOfEntriesCompleted:segment];
-    NSLog(@"PERCENTAGE %@", percentage);
-    NSString *percentageString = percentage.stringValue;
-    swipeCell.detailTextLabel.text = percentageString;
-    //                UILabel *percentageLabel = [UILabel new];
-    //                percentageLabel.text = percentageString;
-    //                swipeCell.editingAccessoryView = percentageLabel;
-    swipeCell.titleLabel.text = title;
-    //                [swipeCell.textLabel setFont: [UIFont fontWithName:@"Arial" size:20]];
-    //                swipeCell.textLabel.textColor = [UIColor colorWithRed:0.976 green:0.922 blue:0.855 alpha:1];
-    //                swipeCell.backgroundColor = [UIColor colorWithRed:0.745 green:0.388 blue:0.329 alpha:percentage.floatValue];
+    
+    swipeCell.percentageWidthConstraint.constant = (swipeCell.innerView.bounds.size.width * [[SegmentController sharedInstance]findPercentageOfEntriesCompleted:segment].floatValue);
+    
+       [UIView animateWithDuration:0.7 delay:0 usingSpringWithDamping:0.85 initialSpringVelocity:2 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+    
+        [self.view layoutIfNeeded];
+    
+       } completion:^(BOOL finished) {
+        
+    
+       }];
+    
+//    swipeCell.percentageLabel.text = [NSString stringWithFormat:@"%%%.0f", [[SegmentController sharedInstance]findPercentageOfEntriesCompleted:segment].floatValue];
+
+    swipeCell.titleLabel.text = segment.title;
+
     return swipeCell;
 
 }
@@ -280,6 +347,7 @@ static NSString *detailCellIdentifier = @"detailCell";
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
+   
     if ([self tableView:tableView canCollapseSection:indexPath.section])
     {
         if (!indexPath.row)
@@ -312,23 +380,21 @@ static NSString *detailCellIdentifier = @"detailCell";
                 [tmpArray addObject:tmpIndexPath];
             }
             
-            UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
-            
             if (currentlyExpanded)
             {
-                
+                [tableView beginUpdates];
                 [tableView deleteRowsAtIndexPaths:tmpArray
                                  withRowAnimation:UITableViewRowAnimationTop];
-                
-//                cell.backgroundColor = [UIColor colorWithRed:0.745 green:0.388 blue:0.329 alpha:1];
+                [tableView endUpdates];
 
             }
             else
             {
+                [tableView beginUpdates];
                 [tableView insertRowsAtIndexPaths:tmpArray
                                  withRowAnimation:UITableViewRowAnimationTop];
-//                cell.backgroundColor = [UIColor colorWithRed:0.745 green:0.388 blue:0.329 alpha:1];
-                
+                [tableView endUpdates];
+
             }
         }
     }
@@ -358,17 +424,9 @@ static NSString *detailCellIdentifier = @"detailCell";
     
     NSIndexPath *path = [self.tableView indexPathForCell:cell];
     Segment *segment = self.list.segments[path.section];
-
-    switch (index) {
-        case 0:
-            [[SegmentController sharedInstance] addEntryToSegment:segment];
-            
-            NSLog(@"check button was pressed");
-            break;
-        case 1:
-            NSLog(@"clock button was pressed");
-            break;
-    }
+    
+    [[SegmentController sharedInstance] addEntryToSegment:segment];
+    
 }
 
 -(BOOL)swipeableTableViewCellShouldHideUtilityButtonsOnSwipe:(SWTableViewCell *)cell{
@@ -385,6 +443,10 @@ static NSString *detailCellIdentifier = @"detailCell";
         return YES;
     }
 
+}
+
+-(void)newListReload {
+    [self.tableView reloadData];
 }
 
 @end

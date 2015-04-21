@@ -68,9 +68,14 @@
 
 -(NSNumber *)findPercentageOfEntriesCompleted:(Segment *)segment{
   
+    
     NSArray *entries = [NSArray arrayWithArray:segment.entries.array];
-    NSNumber *checkSum = [entries valueForKeyPath:@"@sum.Check"];
-    double percentage = checkSum.doubleValue/(double)entries.count;
+    if (entries.count == 0) {
+        return 0;
+    }
+    NSNumber *checkSum = [entries valueForKeyPath:@"@sum.check"];
+    double percentage = (checkSum.doubleValue/(double)entries.count); //* 100;
+   
     NSNumber *finalPercentage = [NSNumber numberWithDouble:percentage];
     return finalPercentage;
 }

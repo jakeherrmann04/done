@@ -7,8 +7,9 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "SwipeCustomCell.h"
 
-@interface ListTableViewCell : UITableViewCell
+@interface ListTableViewCell : SWTableViewCell <UITableViewDelegate>
 
 @property (weak, nonatomic) IBOutlet UILabel *cellTitle;
 

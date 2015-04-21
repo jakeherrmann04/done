@@ -20,12 +20,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "MyDayCapstone/CurrentDayViewController.m"
-            timestampString = "450845135.936197"
+            timestampString = "451260188.18579"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "257"
-            endingLineNumber = "257"
-            landmarkName = "-tableView:cellForRowAtIndexPath:"
+            startingLineNumber = "265"
+            endingLineNumber = "265"
+            landmarkName = "-swipeLeft:"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>

@@ -6,11 +6,14 @@
 //  Copyright (c) 2015 Jake Herrmann. All rights reserved.
 //
 
+#import <SWTableViewCell.h>
 #import "ListViewController.h"
 #import "ListTableViewCell.h"
 #import "CurrentDayViewController.h"
 #import "List.h"
 #import "ListController.h"
+#import "NewListViewController.h"
+#import <pop/POP.h>
 
 static NSString *listCell = @"listCell";
 
@@ -29,9 +32,11 @@ static NSString *listCell = @"listCell";
     [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:listCell];
     
     //Create a UIBarButtonITem and add to Nav Bar
-    UIBarButtonItem *addListButton = [[UIBarButtonItem alloc]initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addList)];
+    UIBarButtonItem *addListButton = [[UIBarButtonItem alloc]initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addList:)];
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     [self.navigationItem setRightBarButtonItem:addListButton];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(newListReload) name:@"listReload" object:nil];
   
 }
 
@@ -46,29 +51,24 @@ static NSString *listCell = @"listCell";
     return YES;
 }
 
-#pragma mark - Bar Button Method
-//When the plus button is tapped create have an alert appear with message
--(void)addList {
-    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Add Title" message:@"Please enter title below." preferredStyle:UIAlertControllerStyleAlert];
-    
-    [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
-        textField.placeholder = @"Title";
-    }];
-    
-    
-    [alertController addAction:[UIAlertAction actionWithTitle:@"Add Title" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-        UITextField *textField = [[alertController textFields]firstObject];
-        [[ListController sharedInstance] addListWithTitle:textField.text];
-        [self.tableView reloadData];
-        //[self performSegueWithIdentifier:@"listTappedSegue" sender:nil];
-        
-        
-    }]];
-    
-    [alertController addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
-    [self presentViewController:alertController animated:YES completion:nil];
+-(void)newListReload{
+    [self.tableView reloadData];
 }
 
+#pragma mark - Bar Button Method
+//When the plus button is tapped create have an alert appear with message
+-(void)addList:(id)sender {
+
+    NewListViewController *viewController = [[UIStoryboard storyboardWithName:@"Main" bundle:NULL] instantiateViewControllerWithIdentifier:@"addList"];
+    [self addChildViewController:viewController];
+    [self.view addSubview:viewController.view];
+    [viewController didMoveToParentViewController:self];
+    viewController.view.alpha = 0.0;
+    viewController.isList = YES;
+
+    [viewController animateNewListViewOn];
+       
+}
 #pragma mark - TableView DataSource
 
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
@@ -78,6 +78,10 @@ static NSString *listCell = @"listCell";
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
     
     ListTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"MainList"];
+    
+    cell.rightUtilityButtons = [self rightButtons];
+    cell.delegate = self;
+
     List *list = [ListController sharedInstance].lists[indexPath.row];
     cell.textLabel.textColor = [UIColor whiteColor];
     cell.cellTitle.text = list.title;
@@ -93,19 +97,23 @@ static NSString *listCell = @"listCell";
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+    [self performSegueWithIdentifier:@"listTappedSegue" sender:[tableView cellForRowAtIndexPath:indexPath]];
 }
 
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
     return YES;
 }
 
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
-    if (editingStyle == UITableViewCellEditingStyleDelete) {
-        //remove the deleted object from your data source.
-        [[ListController sharedInstance]removeList:[ListController sharedInstance].lists[indexPath.row]];
-        [tableView reloadData]; // tell table to refresh now
-    }
+-(void)swipeableTableViewCell:(SWTableViewCell *)cell didTriggerRightUtilityButtonWithIndex:(NSInteger)index{
+    NSIndexPath *path = [self.tableView indexPathForCell:cell];
+    
+    NSLog(@"Delete");
+    [[ListController sharedInstance]removeList:[ListController sharedInstance].lists[path.row]];
+    [self.tableView reloadData];
+    
 }
+
+
 
 #pragma mark - Navigation
 
@@ -116,7 +124,22 @@ static NSString *listCell = @"listCell";
         CurrentDayViewController *destinationViewController = segue.destinationViewController;
         destinationViewController.list = [ListController sharedInstance].lists[indexPath.row];
     }
+    if ([[segue identifier]isEqualToString:@"addListSegue"]) {
+
+    }
 }
+
+- (NSArray *)rightButtons
+{
+    NSMutableArray *rightUtilityButtons = [NSMutableArray new];
+    
+    [rightUtilityButtons sw_addUtilityButtonWithColor:
+     [UIColor colorWithRed:1.0f green:0.231f blue:0.188 alpha:0.0f]
+                                                 icon:[UIImage imageNamed:@"delete"]];
+    
+    return rightUtilityButtons;
+}
+
 
 
 @end

@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		230A2F281AE56A8200A2058C /* NewListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 230A2F271AE56A8200A2058C /* NewListViewController.m */; };
+		230A2F2B1AE5AEB000A2058C /* NewSegmentViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 230A2F2A1AE5AEB000A2058C /* NewSegmentViewController.m */; };
 		2318E5751AD8354B0064AC34 /* SegmentController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2318E5741AD8354B0064AC34 /* SegmentController.m */; };
 		231D029D1AC5AF4500E1E066 /* Stack.m in Sources */ = {isa = PBXBuildFile; fileRef = 231D029C1AC5AF4500E1E066 /* Stack.m */; };
 		231D02D21AC5E58900E1E066 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 231D02D11AC5E58900E1E066 /* CoreData.framework */; };
@@ -53,6 +55,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		230A2F261AE56A8200A2058C /* NewListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NewListViewController.h; sourceTree = "<group>"; };
+		230A2F271AE56A8200A2058C /* NewListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NewListViewController.m; sourceTree = "<group>"; };
+		230A2F291AE5AEB000A2058C /* NewSegmentViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NewSegmentViewController.h; sourceTree = "<group>"; };
+		230A2F2A1AE5AEB000A2058C /* NewSegmentViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NewSegmentViewController.m; sourceTree = "<group>"; };
 		2318E5731AD8354B0064AC34 /* SegmentController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SegmentController.h; sourceTree = "<group>"; };
 		2318E5741AD8354B0064AC34 /* SegmentController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SegmentController.m; sourceTree = "<group>"; };
 		231D029B1AC5AF4500E1E066 /* Stack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Stack.h; sourceTree = "<group>"; };
@@ -165,6 +171,8 @@
 				231D02E21AC5F20E00E1E066 /* ListViewController.m */,
 				231D02E41AC5F27300E1E066 /* ListTableViewCell.h */,
 				231D02E51AC5F27300E1E066 /* ListTableViewCell.m */,
+				230A2F261AE56A8200A2058C /* NewListViewController.h */,
+				230A2F271AE56A8200A2058C /* NewListViewController.m */,
 			);
 			name = ListView;
 			sourceTree = "<group>";
@@ -178,6 +186,8 @@
 				237505BC1AC34D5A009F3F1C /* SwipeCustomCell.m */,
 				232DDB691AD47F9D00DF1E8B /* DetailTaskTableViewCell.h */,
 				232DDB6A1AD47F9D00DF1E8B /* DetailTaskTableViewCell.m */,
+				230A2F291AE5AEB000A2058C /* NewSegmentViewController.h */,
+				230A2F2A1AE5AEB000A2058C /* NewSegmentViewController.m */,
 			);
 			name = Segment;
 			sourceTree = "<group>";
@@ -423,6 +433,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				232172C31ADEFE690080E2B1 /* List.m in Sources */,
+				230A2F2B1AE5AEB000A2058C /* NewSegmentViewController.m in Sources */,
 				23A70EF61ACB8B9600EBC96B /* ExpandingTableViewController.m in Sources */,
 				231D02E61AC5F27300E1E066 /* ListTableViewCell.m in Sources */,
 				231D029D1AC5AF4500E1E066 /* Stack.m in Sources */,
@@ -436,6 +447,7 @@
 				232172C21ADEFE690080E2B1 /* Segment.m in Sources */,
 				2346D8CF1AC1B73200AC6A22 /* CurrentDayViewController.m in Sources */,
 				2346D8AD1AC112F200AC6A22 /* AppDelegate.m in Sources */,
+				230A2F281AE56A8200A2058C /* NewListViewController.m in Sources */,
 				2346D8AA1AC112F200AC6A22 /* main.m in Sources */,
 				23A70EF31ACB560200EBC96B /* HVTableView.m in Sources */,
 			);
@@ -496,6 +508,7 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer: Jake Herrmann (82U7HXEEMD)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -537,6 +550,7 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer: Jake Herrmann (82U7HXEEMD)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				ENABLE_NS_ASSERTIONS = NO;

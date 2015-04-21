@@ -5,6 +5,7 @@
 target 'MyDayCapstone' do
 
 pod 'SWTableViewCell', '~> 0.3.7'
+pod 'pop', '~> 1.0'
 
 end
 

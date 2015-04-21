@@ -9,6 +9,11 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
+		<key>Pods-MyDayCapstone-pop.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 		<key>Pods-MyDayCapstone.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -17,12 +22,17 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
-		<key>7B622EA3413BB27209CA32AD</key>
+		<key>17149F528814C588EC0D20FB</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>A59BE6E3A8BE303F0A39B789</key>
+		<key>1AEAA9232692F256DE0245C7</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>F1A2F13BFD21D82640708902</key>
 		<dict>
 			<key>primary</key>
 			<true/>
